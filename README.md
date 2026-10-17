@@ -30,15 +30,14 @@ Aplikasi telah berhasil di-deploy dan dapat diakses secara langsung melalui taut
 
 ---
 
-## 🔑 Kredensial Default Akun Admin
+## 🔐 Akses & Keamanan Panel Admin
 
-Untuk menguji fitur manajemen restoran di panel admin:
+Panel manajemen restoran dapat diakses melalui:
+* 🛡️ **URL Login Admin:** [https://anburestaurant.infinityfree.me/admin/admin_login.php](https://anburestaurant.infinityfree.me/admin/admin_login.php)
 
-| Parameter | Kredensial |
-| :--- | :--- |
-| **URL Login** | `https://anburestaurant.infinityfree.me/admin/admin_login.php` |
-| **Username** | `admin` |
-| **Password** | `111` |
+> [!IMPORTANT]
+> **Praktik Keamanan Kredensial:**
+> Kata sandi akun administrator awal dikonfigurasi saat Anda mengimpor database [`anbu.sql`](anbu.sql) di komputer lokal atau phpMyAdmin Anda. Demi menjaga keamanan dan privasi proyek pada repositori publik ini, kata sandi akun administratif *live production* tidak dipublikasikan secara terbuka. Administrator baru dapat didaftarkan melalui menu internal `admin/register_admin.php` atau kata sandi dapat diperbarui via `admin/update_profile.php`.
 
 ---
 
@@ -234,23 +233,32 @@ Nyalakan modul **Apache** dan **MySQL** melalui XAMPP Control Panel.
    Pastikan seluruh file proyek (`home.php`, folder `admin`, `components`, dll.) diekstrak langsung di dalam folder **`htdocs/`** hosting Anda.
 2. **Import Database:**
    Buat database melalui menu **MySQL Databases** di cPanel hosting, kemudian impor file [`anbu.sql`](anbu.sql) via phpMyAdmin hosting.
-3. **Konfigurasi `components/connect.php`:**
-   Sesuaikan kredensial koneksi database dengan kredensial dari cPanel hosting Anda:
-   ```php
-   <?php
-   $db_host = 'sql123.infinityfree.com'; // MySQL Hostname dari hosting
-   $db_name = 'if0_xxxxxx_anbu';        // Nama Database dari hosting
-   $user_name = 'if0_xxxxxx';           // Username Database dari hosting
-   $user_password = 'PasswordAkunAnda'; // Password akun hosting
+3. **Konfigurasi Kredensial Database Rahasia (`components/connect.local.php`):**
+   Demi menjaga kerahasiaan password database di repositori publik, aplikasi ini menggunakan sistem isolasi file konfigurasi lokal yang otomatis diabaikan oleh Git (`.gitignore`):
+   
+   * Salin file contoh [`components/connect.example.php`](components/connect.example.php) menjadi `components/connect.local.php`:
+     ```bash
+     cp components/connect.example.php components/connect.local.php
+     ```
+   * Masukkan kredensial database hosting Anda ke dalam `components/connect.local.php`:
+     ```php
+     <?php
+     $db_host = 'sql123.infinityfree.com'; // MySQL Hostname dari hosting
+     $db_name = 'if0_xxxxxx_anbu';        // Nama Database dari hosting
+     $user_name = 'if0_xxxxxx';           // Username Database dari hosting
+     $user_password = 'PasswordRahasiaAnda'; // Password akun hosting
 
-   try {
-       $conn = new PDO("mysql:host=$db_host;dbname=$db_name", $user_name, $user_password);
-       $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-   } catch (PDOException $e) {
-       die("Koneksi Database Gagal: " . $e->getMessage());
-   }
-   ?>
-   ```
+     try {
+         $conn = new PDO("mysql:host=$db_host;dbname=$db_name", $user_name, $user_password);
+         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+     } catch (PDOException $e) {
+         die("Koneksi Database Gagal: " . $e->getMessage());
+     }
+     ?>
+     ```
+   * File `connect.local.php` ini **secara otomatis diabaikan oleh Git (`.gitignore`)** sehingga password hosting dan database Anda tidak akan pernah terunggah ke publik!
+   
+   *(Catatan: Anda juga dapat menggunakan Environment Variables `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASS` jika platform hosting mendukungnya).*
 
 ---
 
